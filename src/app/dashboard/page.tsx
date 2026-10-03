@@ -1,0 +1,41 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Dashboard from "@/components/Dashboard";
+import { envString } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Dashboard — Amana",
+  description:
+    "Your Amana home base: identity status and transaction PIN setup.",
+};
+
+export default function DashboardPage() {
+  return (
+    <div className="on-light min-h-screen bg-pure-white text-espresso">
+      <a
+        href="#dashboard-main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-[28px] focus:bg-ember-glow focus:px-5 focus:py-2 focus:text-[14px] focus:font-medium focus:text-espresso"
+      >
+        Skip to content
+      </a>
+      <header className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-6 sm:px-8">
+        <a href="/" aria-label="Amana home" className="flex items-center gap-2">
+          <Image src="/logo.svg" alt="" width={40} height={25} />
+          <span className="text-[16px] font-semibold tracking-[-0.02em]">
+            Amana
+          </span>
+        </a>
+        <a
+          href="/kyc"
+          className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark"
+        >
+          Mock check
+        </a>
+      </header>
+      <main id="dashboard-main" className="mx-auto max-w-[1200px] scroll-mt-24 px-4 pt-8 pb-20 sm:px-8">
+        <h1 className="sr-only">Amana dashboard</h1>
+        <Dashboard botNumber={envString("WHATSAPP_BOT_NUMBER")} />
+      </main>
+    </div>
+  );
+}
