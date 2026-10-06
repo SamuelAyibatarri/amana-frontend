@@ -62,7 +62,7 @@
 	 * See .dev.vars for local development values.
 	 */
 	"vars": {
-		"BETTER_AUTH_URL": "https://amana-frontend.workers.dev",
-		"FRONTEND_URL": "https://amana-frontend.workers.dev"
+		"BETTER_AUTH_URL": "https://amana.ayiba.dev",
+		"FRONTEND_URL": "https://amana.ayiba.dev"
 	}
 }
