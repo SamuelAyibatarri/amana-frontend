@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
 	OTP_RE,
+	PIN_HASH_VERSION,
 	PIN_RE,
+	PBKDF2_ITERATIONS,
 	checkPin,
 	hashOtp,
 	hashPin,
@@ -28,10 +30,10 @@ describe("PIN_RE / OTP_RE", () => {
 });
 
 describe("hashPin / checkPin", () => {
-	it("emits v1$ + 64-hex and stays deterministic per user", async () => {
+	it("emits v2$ + 64-hex and stays deterministic per user", async () => {
 		const h = await hashPin("1234", "u1");
-		expect(h.startsWith("v1$")).toBe(true);
-		expect(/^v1\$[0-9a-f]{64}$/.test(h)).toBe(true);
+		expect(h.startsWith("v2$")).toBe(true);
+		expect(/^v2\$[0-9a-f]{64}$/.test(h)).toBe(true);
 		await expect(hashPin("1234", "u1")).resolves.toBe(h);
 	});
 
@@ -50,13 +52,25 @@ describe("hashPin / checkPin", () => {
 	it("rejects legacy unprefixed hashes", async () => {
 		await expect(checkPin("1234", "u1", "deadbeef")).resolves.toBe(false);
 	});
+
+	it("rejects v1 hashes (210k era — re-set required)", async () => {
+		await expect(
+			checkPin("1234", "u1", "v1$" + "a".repeat(64)),
+		).resolves.toBe(false);
+	});
+
+	it("stays within the Workers PBKDF2 cap (100k iterations)", () => {
+		// workerd throws above 100k — this test is the runtime contract.
+		expect(PBKDF2_ITERATIONS).toBeLessThanOrEqual(100_000);
+		expect(PIN_HASH_VERSION).toBe("v2");
+	});
 });
 
 describe("hashOtp / makeOtp", () => {
 	it("hashes OTPs in a separate domain from PINs", async () => {
 		const o = await hashOtp("123456", "u1");
 		const p = await hashPin("123456", "u1");
-		expect(o.startsWith("v1$")).toBe(true);
+		expect(o.startsWith("v2$")).toBe(true);
 		expect(o).not.toBe(p);
 	});
 
