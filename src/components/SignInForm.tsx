@@ -8,6 +8,7 @@ type State = "idle" | "working" | "sent" | "error";
 /**
  * Demo sign-in: enter the WhatsApp number, get the magic link in chat.
  * Better Auth generates the link; the worker sends it to your WhatsApp.
+ * Single landing: /dashboard (server guards route onward from there).
  */
 export default function SignInForm() {
   const [phone, setPhone] = useState("");
@@ -29,7 +30,7 @@ export default function SignInForm() {
     setState("working");
     const { error: err } = await authClient.signIn.magicLink({
       email: `${digits}@amana.whatsapp`,
-      callbackURL: "/kyc",
+      callbackURL: "/dashboard",
     });
     if (err) {
       setError(err.message ?? "Could not send the WhatsApp link. Retry.");
@@ -49,8 +50,8 @@ export default function SignInForm() {
           Check your WhatsApp.
         </p>
         <p className="mt-2 max-w-[52ch] text-[14px] leading-[1.5]">
-          Tap the sign-in link in chat — it lands you on verification,
-          already signed in. The link expires in 15 minutes.
+          Tap the sign-in link in chat — it signs you in and takes you
+          where you need to go. The link expires in 15 minutes.
         </p>
         <div className="mt-6">
           <button

@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import GetStartedCta from "@/components/GetStartedCta";
 
 const LINKS = [
   ["How it works", "#how"],
   ["Cash out", "#cashout"],
-  ["KYC (mock)", "/kyc"],
+  ["KYC", "/kyc"],
   ["How it's built", "#inside"],
 ] as const;
 
@@ -38,16 +39,16 @@ export default function Navbar() {
           maxWidth: scrolled ? "calc(1200px - 48px)" : "1200px",
           margin: "0 auto",
           background: scrolled
-            ? "color-mix(in srgb, var(--color-espresso) 72%, transparent)"
+            ? "color-mix(in srgb, var(--color-ember-night) 55%, transparent)"
             : "transparent",
           backdropFilter: scrolled ? "blur(16px)" : "none",
           WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
           border: scrolled
-            ? "1px solid color-mix(in srgb, var(--color-sand) 35%, transparent)"
+            ? "1px solid color-mix(in srgb, var(--color-sand) 18%, transparent)"
             : "1px solid transparent",
           borderRadius: "28px",
           padding: scrolled ? "12px 16px" : "16px 16px",
-          boxShadow: scrolled ? "0 8px 32px rgba(0, 0, 0, 0.35)" : "none",
+          boxShadow: scrolled ? "0 8px 32px rgba(0, 0, 0, 0.25)" : "none",
         }}
       >
         <div className="flex items-center justify-between gap-4">
@@ -55,9 +56,6 @@ export default function Navbar() {
             <Image src="/logo.svg" alt="" width={40} height={25} priority />
             <span className="text-[16px] font-semibold tracking-[-0.02em] text-pure-white">
               Amana
-            </span>
-            <span className="rounded-[40px] bg-ember-glow px-3 py-1 text-[8px] font-medium tracking-[0.05em] text-espresso uppercase">
-              Devnet
             </span>
           </a>
           <div className="hidden items-center gap-1 lg:flex">
@@ -78,12 +76,7 @@ export default function Navbar() {
             >
               Sign in
             </a>
-            <a
-              href="/kyc"
-              className="rounded-[28px] bg-ember-glow px-5 py-2 text-[14px] font-medium text-espresso transition-colors hover:bg-pure-white"
-            >
-              Get started
-            </a>
+            <GetStartedCta tone="nav" chatLabel="Get started" />
           </div>
         </div>
       </nav>

@@ -4,6 +4,7 @@ import { getAuthInstance } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { phoneFromEmail, sendWhatsApp } from "@/lib/notify";
 import { OTP_MAX_ATTEMPTS, OTP_RE, PIN_RE, hashOtp, hashPin } from "@/lib/pin";
+import { signaturesEqual } from "@/lib/webhook";
 
 /**
  * POST /api/pin/reset { otp, pin } — set a new PIN with a reset code.
@@ -53,7 +54,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const good = (await hashOtp(otp, person.id)) === person.resetOtpHash;
+  const good = signaturesEqual(
+    await hashOtp(otp, person.id),
+    person.resetOtpHash,
+  );
   if (!good) {
     const attempts = (person.resetOtpAttempts ?? 0) + 1;
     const exhausted = attempts >= OTP_MAX_ATTEMPTS;

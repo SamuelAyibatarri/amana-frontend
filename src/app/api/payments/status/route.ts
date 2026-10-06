@@ -1,5 +1,6 @@
 import { getAuthInstance } from "@/lib/auth";
 import { envString, getDb } from "@/lib/db";
+import { signaturesEqual } from "@/lib/webhook";
 
 /**
  * GET /api/payments/status?reference=<ref>
@@ -23,9 +24,9 @@ export async function GET(request: Request) {
   }
 
   const sharedSecret = envString("SHARED_SECRET");
-  const callerSecret = request.headers.get("x-amana-secret");
+  const callerSecret = request.headers.get("x-amana-secret") ?? "";
   const isBotCall =
-    !!sharedSecret && !!callerSecret && callerSecret === sharedSecret;
+    !!sharedSecret && signaturesEqual(callerSecret, sharedSecret);
 
   let userId: string | null = null;
   if (!isBotCall) {

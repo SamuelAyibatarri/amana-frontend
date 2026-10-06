@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import KycForm from "@/components/KycForm";
+import { getViewer } from "@/lib/gate";
 
 export const metadata: Metadata = {
   title: "Verify identity — Amana",
   description:
-    "Mock identity check for the Amana hackathon build. Any 11-digit BVN + NIN passes.",
+    "Verify your identity for Amana. Any 11-digit BVN + NIN is approved instantly.",
 };
 
-export default function KycPage() {
+export const dynamic = "force-dynamic";
+
+export default async function KycPage() {
+  // Verified users never see this page — straight to the dashboard.
+  // (The "You're cleared" panel in KycForm stays as an unreachable fallback.)
+  const viewer = await getViewer();
+  if (!viewer) redirect("/signin");
+  if (viewer.kycStatus === "verified") redirect("/dashboard");
   return (
     <div className="on-light min-h-screen bg-pure-white text-espresso">
       <a
@@ -25,7 +34,7 @@ export default function KycPage() {
           </span>
         </a>
         <span className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark">
-          Mock check
+          Identity check
         </span>
       </header>
       <main id="kyc-main" className="mx-auto max-w-[640px] scroll-mt-24 px-4 pt-8 pb-20 sm:px-8">
@@ -36,8 +45,8 @@ export default function KycPage() {
           Verify your identity
         </h1>
         <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.5]">
-          Enter your BVN and NIN below. This demo build approves anything
-          exactly 11 digits — approval unlocks your transfer limits instantly.
+          Enter your BVN and NIN below. Any 11-digit pair is approved
+          instantly — approval unlocks your transfer limits.
         </p>
         <div className="mt-8 rounded-[20px] border border-espresso bg-warm-bone p-6 sm:p-8">
           <KycForm />

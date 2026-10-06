@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
+import DoodleBand from "@/components/DoodleBand";
+import GetStartedCta from "@/components/GetStartedCta";
 import QrDownloadCard from "@/components/QrDownloadCard";
 import TokenHandler from "@/components/TokenHandler";
 
@@ -54,7 +56,7 @@ const KYC_STEPS = [
   {
     step: "Step 2",
     title: "Enter two numbers",
-    body: "BVN + NIN. Eleven digits each. Any digits pass.",
+    body: "BVN + NIN. Eleven digits each, approval on the spot.",
   },
   {
     step: "Step 3",
@@ -115,11 +117,12 @@ export default function Home() {
         <section
           id="cashout"
           aria-labelledby="cashout-heading"
-          className="scroll-mt-8 bg-ember-night"
+          className="relative scroll-mt-8 overflow-hidden bg-ember-night"
         >
-          <div className="mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-3">
-              <div>
+          <DoodleBand opacity={0.12} />
+          <div className="relative mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
+            <div className="grid grid-cols-1 items-center gap-12 xl:grid-cols-3 xl:gap-16">
+              <div className="min-w-0">
                 <p className="font-instrument-serif text-[18px] text-taupe italic">
                   Paystack in, Solana under the hood
                 </p>
@@ -127,18 +130,15 @@ export default function Home() {
                   Cash out without leaving <span className="text-ember-glow">chat.</span>
                 </h2>
                 <p className="mt-6 max-w-[56ch] text-[18px] leading-[1.5] text-sand">
-                  Fund with Paystack test payments, hold on Solana Devnet, and
+                  Fund with Paystack, hold on Solana, and
                   send to any phone number. The web app is here when you want a
                   bigger screen.
                 </p>
-                <a
-                  href="/kyc"
-                  className="mt-8 inline-block rounded-[28px] bg-ember-glow px-5 py-2 text-[16px] font-medium text-espresso transition-colors hover:bg-pure-white"
-                >
-                  Start with mock KYC
-                </a>
+                <div className="mt-8">
+                  <GetStartedCta tone="card" chatLabel="Start in WhatsApp" />
+                </div>
               </div>
-              <div className="on-light lg:col-span-2">
+              <div className="on-light min-w-0 xl:col-span-2">
                 <QrDownloadCard />
               </div>
             </div>
@@ -151,16 +151,12 @@ export default function Home() {
           className="on-light scroll-mt-8 bg-pure-white text-espresso"
         >
           <div className="mx-auto max-w-[1200px] px-4 py-20 text-center sm:px-8 sm:py-28">
-            <span className="inline-block rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark">
-              Hackathon build
-            </span>
             <h2 id="kyc-heading" className="display-section mx-auto mt-6 max-w-[16ch] text-balance">
-              Identity, <span className="text-deep-ember">mocked.</span>
+              Identity, <span className="text-deep-ember">verified.</span>
             </h2>
             <p className="mx-auto mt-6 max-w-[60ch] text-[18px] leading-[1.5]">
-              Real verification vendors can wait. Enter a BVN and a NIN and the
-              mock passes anything exactly 11 digits — a pass unlocks your
-              transfer limits on the spot.
+              Enter a BVN and a NIN — anything exactly 11 digits passes, and
+              approval unlocks your transfer limits on the spot.
             </p>
             <ol className="mt-12 grid list-none grid-cols-1 gap-4 p-0 text-left sm:grid-cols-3">
               {KYC_STEPS.map((step) => (
@@ -183,11 +179,12 @@ export default function Home() {
         <section
           id="inside"
           aria-labelledby="inside-heading"
-          className="scroll-mt-8 bg-ember-night"
+          className="relative scroll-mt-8 overflow-hidden bg-ember-night"
         >
-          <div className="mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
+          <DoodleBand opacity={0.12} />
+          <div className="relative mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
             <p className="font-instrument-serif text-[18px] text-sand italic">
-              demo build, real architecture
+              real architecture, plain language
             </p>
             <h2 id="inside-heading" className="display-section mt-4 max-w-[16ch] text-balance">
               Under the <span className="text-ember-glow">hood.</span>
@@ -218,14 +215,16 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-ember-night">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <footer className="relative overflow-hidden bg-ember-night">
+        <DoodleBand opacity={0.08} />
+        <div className="relative mx-auto flex max-w-[1200px] flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-[14px] font-semibold tracking-[-0.01em]">
             Amana Protocol
           </p>
           <p className="max-w-[60ch] text-[14px] leading-[1.5] text-sand">
-            Hackathon build for the Superteam Nigeria track. Mock KYC, Devnet
-            funds, Paystack test mode — no real money moves.
+            Hackathon build for the Superteam Nigeria track. Verification is
+            mocked, funds live on Solana Devnet, payments run through
+            Paystack test mode — no real money moves.
           </p>
         </div>
       </footer>

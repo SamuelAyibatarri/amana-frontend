@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type LoadState = "checking" | "signed-out" | "ready";
@@ -8,14 +9,15 @@ type SubmitState = "idle" | "submitting" | "verified" | "failed";
 const ELEVEN_DIGITS = /^\d{11}$/;
 
 export default function KycForm() {
-  const [load, setLoad] = useState<LoadState>("checking");
+  const router = useRouter();  const [load, setLoad] = useState<LoadState>("checking");
   const [current, setCurrent] = useState<{ bvn: string | null; nin: string | null }>({
     bvn: null,
     nin: null,
   });
   const [bvn, setBvn] = useState("");
   const [nin, setNin] = useState("");
-  const [errors, setErrors] = useState<{ bvn?: string; nin?: string; form?: string }>({});
+  const [fullName, setFullName] = useState("");
+  const [errors, setErrors] = useState<{ bvn?: string; nin?: string; fullName?: string; form?: string }>({});
   const [submit, setSubmit] = useState<SubmitState>("idle");
   const [reason, setReason] = useState("");
   const bvnRef = useRef<HTMLInputElement>(null);
@@ -35,12 +37,14 @@ export default function KycForm() {
             status?: string;
             bvn?: string | null;
             nin?: string | null;
+            fullName?: string | null;
           };
           setCurrent({ bvn: status.bvn ?? null, nin: status.nin ?? null });
           if (status.status === "verified") {
             setSubmit("verified");
             setBvn(status.bvn ?? "");
             setNin(status.nin ?? "");
+            setFullName(status.fullName ?? "");
           }
           setLoad("ready");
         });
@@ -121,6 +125,10 @@ export default function KycForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const nextErrors: typeof errors = {};
+    const name = fullName.trim().replace(/\s+/g, " ");
+    if (name.length < 2 || name.length > 80 || !/^[A-Za-z][A-Za-z'’\- ]*$/.test(name)) {
+      nextErrors.fullName = "Enter your full name (letters, 2–80 chars).";
+    }
     if (!ELEVEN_DIGITS.test(bvn.trim())) {
       nextErrors.bvn = "BVN must be exactly 11 digits.";
     }
@@ -128,10 +136,12 @@ export default function KycForm() {
       nextErrors.nin = "NIN must be exactly 11 digits.";
     }
     setErrors(nextErrors);
-    if (nextErrors.bvn || nextErrors.nin) {
-      const target = nextErrors.bvn
-        ? bvnRef.current
-        : document.getElementById("nin-input");
+    if (nextErrors.fullName || nextErrors.bvn || nextErrors.nin) {
+      const target = nextErrors.fullName
+        ? document.getElementById("name-input")
+        : nextErrors.bvn
+          ? bvnRef.current
+          : document.getElementById("nin-input");
       target?.focus();
       return;
     }
@@ -140,12 +150,13 @@ export default function KycForm() {
       const res = await fetch("/api/kyc/verify", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ bvn: bvn.trim(), nin: nin.trim() }),
+        body: JSON.stringify({ bvn: bvn.trim(), nin: nin.trim(), fullName: name }),
       });
       const data = (await res.json()) as { status?: string; reason?: string };
       if (res.ok && data.status === "verified") {
-        setSubmit("verified");
-        setReason("");
+        // Freshly verified — the dashboard is the next screen, not a panel.
+        router.replace("/dashboard");
+        return;
       } else {
         setSubmit("failed");
         setReason(data.reason ?? "Verification failed. Check the numbers and retry.");
@@ -167,6 +178,32 @@ export default function KycForm() {
         </p>
       )}
       <div className="flex flex-col gap-6">
+        <div>
+          <label htmlFor="name-input" className="text-[14px] font-semibold">
+            Full name
+          </label>
+          <input
+            id="name-input"
+            name="fullName"
+            type="text"
+            autoComplete="name"
+            spellCheck={false}
+            placeholder="e.g. Adaeze Okafor…"
+            maxLength={80}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            aria-invalid={!!errors.fullName}
+            aria-describedby={errors.fullName ? "name-error" : undefined}
+            className="mt-2 w-full rounded-[24px] border border-espresso bg-pure-white px-4 py-3 text-[16px] tracking-[-0.01em] placeholder:text-taupe focus:border-deep-ember focus:outline-none"
+          />
+          {errors.fullName ? (
+            <p id="name-error" role="alert" className="mt-2 text-[14px] font-medium text-deep-ember">
+              {errors.fullName}
+            </p>
+          ) : (
+            <p className="mt-2 text-[12px] text-taupe">The bot greets you by this name.</p>
+          )}
+        </div>
         <div>
           <label htmlFor="bvn-input" className="text-[14px] font-semibold">
             Bank Verification Number
@@ -238,7 +275,7 @@ export default function KycForm() {
         {submit === "submitting" ? "Verifying…" : "Verify identity"}
       </button>
       <p id="kyc-mock-note" className="mt-4 text-[12px] leading-[1.5] text-taupe">
-        Demo check — any 11-digit pair passes. Nothing leaves this page.
+        Any 11-digit pair is approved instantly. Nothing leaves this page.
       </p>
     </form>
   );

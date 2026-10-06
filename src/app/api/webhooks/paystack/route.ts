@@ -6,6 +6,7 @@ import {
   paystackEventToStatus,
   type PaystackWebhookEvent,
 } from "@/lib/paystack";
+import { delegateSettle } from "@/lib/settle";
 
 /**
  * POST /api/webhooks/paystack
@@ -100,5 +101,20 @@ export async function POST(request: Request) {
   console.log(
     `[webhooks/paystack] Payment ${nextStatus}: ${reference} (${existing.amount} kobo)`,
   );
+
+  // Chat buys settle on the Azure backend: ledger fund + mirror mint +
+  // WhatsApp receipt. Delegated (worker can't sign); backend guards +
+  // dedupes. Webhook stays 200 regardless — money is never retried into.
+  if (nextStatus === "completed") {
+    try {
+      const meta = existing.metadata ? JSON.parse(existing.metadata) : null;
+      await delegateSettle(reference, { ...meta, amountKobo: existing.amount });
+    } catch (err) {
+      console.error(
+        `[webhooks/paystack] Settle delegation failed: ${reference}`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
   return Response.json({ ok: true, matched: true, status: nextStatus });
 }

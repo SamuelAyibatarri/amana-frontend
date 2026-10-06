@@ -1,6 +1,7 @@
 import * as schema from "@/db/schema";
 import { getAuthInstance } from "@/lib/auth";
 import { envString, getDb } from "@/lib/db";
+import { signaturesEqual } from "@/lib/webhook";
 
 const MIN_AMOUNT_KOBO = 10000; // ₦100 floor keeps test noise out
 
@@ -12,6 +13,18 @@ interface InitializeBody {
 
 function badRequest(message: string, status = 400) {
   return Response.json({ ok: false, error: message }, { status });
+}
+
+/**
+ * Paystack rejects non-public TLDs (our internal `phone@amana.whatsapp`
+ * identity fails its email validation). Internal identity is untouched —
+ * only the Paystack customer field gets a format-valid alias.
+ */
+function paystackEmail(email: string): string {
+  const [local] = email.split("@");
+  return email.endsWith("@amana.whatsapp") && local
+    ? `${local}@customers.amana.ng`
+    : email;
 }
 
 /**
@@ -36,9 +49,9 @@ export async function POST(request: Request) {
   }
 
   const sharedSecret = envString("SHARED_SECRET");
-  const callerSecret = request.headers.get("x-amana-secret");
+  const callerSecret = request.headers.get("x-amana-secret") ?? "";
   const isBotCall =
-    !!sharedSecret && !!callerSecret && callerSecret === sharedSecret;
+    !!sharedSecret && signaturesEqual(callerSecret, sharedSecret);
 
   let body: InitializeBody;
   try {
@@ -81,6 +94,21 @@ export async function POST(request: Request) {
     }
     userId = session.user.id;
     email = session.user.email;
+    // Web funding settles like a chat buy: derive the phone server-side
+    // and stamp buy metadata so the webhook settles the ledger + mirror.
+    // Without this, web payments complete with no ledger credit (stranded).
+    if (!isBotCall && email.endsWith("@amana.whatsapp")) {
+      const incoming =
+        body.metadata && typeof body.metadata === "object"
+          ? (body.metadata as Record<string, unknown>)
+          : {};
+      body.metadata = {
+        ...incoming,
+        kind: "buy",
+        asset: incoming.asset === "USDC" ? "USDC" : "SOL",
+        phone: email.replace("@amana.whatsapp", ""),
+      };
+    }
   }
 
   const reference = `amana-${Date.now().toString(36)}-${crypto
@@ -101,7 +129,7 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email,
+        email: paystackEmail(email),
         amount: amountKobo,
         reference,
         metadata:

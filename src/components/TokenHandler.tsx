@@ -1,23 +1,34 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Status = "idle" | "verifying" | "verified" | "error";
+type Status = "idle" | "verifying" | "verified" | "error" | "redirecting";
 
 /**
  * Surfaces magic-link outcomes on the landing page: the framework verifies
  * `?token=` links itself (see [...all]) and redirects to the callback URL;
  * direct endpoint hits land here with `?verified=1` / `?error=`.
+ * Verified users with completed KYC skip straight to the dashboard —
+ * no more KYC-wall-then-click-through.
  */
 export default function TokenHandler() {
   const params = useSearchParams();
+  const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
   const [detail, setDetail] = useState("");
 
   useEffect(() => {
     if (params.get("verified") === "1") {
-      setStatus("verified");
+      setStatus("redirecting");
+      fetch("/api/kyc/status")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: unknown) => {
+          const verified =
+            (data as { status?: string })?.status === "verified";
+          router.replace(verified ? "/dashboard" : "/kyc");
+        })
+        .catch(() => setStatus("verified"));
       return;
     }
     if (params.get("error")) {
@@ -25,9 +36,17 @@ export default function TokenHandler() {
       setDetail("That sign-in link was invalid or expired. Get a fresh one from sign-in.");
       return;
     }
-  }, [params]);
+  }, [params, router]);
 
   if (status === "idle") return null;
+
+  if (status === "redirecting") {
+    return (
+      <div className="on-light mx-auto max-w-[1200px] px-4 pt-8 sm:px-8" role="status" aria-live="polite">
+        <p className="text-[16px]">Taking you to your wallet…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="on-light mx-auto max-w-[1200px] px-4 pt-8 sm:px-8" role="status" aria-live="polite">
@@ -44,7 +63,7 @@ export default function TokenHandler() {
               You’re in.
             </p>
             <p className="mt-2 max-w-[60ch] text-[16px] leading-[1.5]">
-              Next step: mock KYC below — any 11-digit BVN + NIN passes.
+              Next step: verify your identity below — any 11-digit BVN + NIN.
             </p>
             <a
               href="/kyc"

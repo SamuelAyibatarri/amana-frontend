@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { envString, getDb } from "@/lib/db";
 import { PIN_LOCK_MS, PIN_MAX_ATTEMPTS, PIN_RE, checkPin } from "@/lib/pin";
+import { signaturesEqual } from "@/lib/webhook";
 
 /**
  * POST /api/pin/verify { phone, pin } — bot clearance branch for PINs.
@@ -11,9 +12,9 @@ import { PIN_LOCK_MS, PIN_MAX_ATTEMPTS, PIN_RE, checkPin } from "@/lib/pin";
  * Lockout: 5 wrong attempts locks the credential for 15 minutes.
  */
 export async function POST(request: Request) {
-  const botSecret = request.headers.get("x-amana-secret");
+  const botSecret = request.headers.get("x-amana-secret") ?? "";
   const secret = envString("SHARED_SECRET");
-  if (!secret || botSecret !== secret) {
+  if (!secret || !signaturesEqual(botSecret, secret)) {
     return Response.json({ ok: false, error: "Unauthorized." }, { status: 401 });
   }
 

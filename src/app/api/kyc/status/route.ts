@@ -1,5 +1,9 @@
 import { getAuthInstance } from "@/lib/auth";
 import { envString, getDb } from "@/lib/db";
+import { signaturesEqual } from "@/lib/webhook";
+
+const last4 = (v: string | null) =>
+  typeof v === "string" && v.length >= 4 ? v.slice(-4) : null;
 
 /**
  * GET /api/kyc/status — current KYC state for the signed-in user.
@@ -16,7 +20,7 @@ export async function GET(request: Request) {
   const botSecret = request.headers.get("x-amana-secret");
   if (botSecret) {
     const secret = envString("SHARED_SECRET");
-    if (!secret || botSecret !== secret) {
+    if (!secret || !signaturesEqual(botSecret, secret)) {
       return Response.json({ ok: false, error: "Unauthorized." }, { status: 401 });
     }
     const url = new URL(request.url);
@@ -29,7 +33,7 @@ export async function GET(request: Request) {
       where: (u, { eq }) => eq(u.email, `${phone}@amana.whatsapp`),
     });
     if (!person) {
-      return Response.json({ ok: true, status: "unknown", verified: false });
+      return Response.json({ ok: true, status: "unknown", verified: false, linked: false });
     }
     const profile = await db.query.kycProfile.findFirst({
       where: (k, { eq }) => eq(k.userId, person.id),
@@ -39,7 +43,10 @@ export async function GET(request: Request) {
       ok: true,
       status,
       verified: status === "verified",
+      linked: true,
       mocked: profile?.mocked ?? true,
+      name: person.name,
+      defaultCurrency: person.defaultCurrency ?? "NGN",
     });
   }
 
@@ -59,8 +66,9 @@ export async function GET(request: Request) {
       ok: true,
       status: "pending",
       mocked: true,
-      bvn: null,
-      nin: null,
+      bvnLast4: null,
+      ninLast4: null,
+      fullName: null,
     });
   }
 
@@ -68,8 +76,9 @@ export async function GET(request: Request) {
     ok: true,
     status: profile.status,
     mocked: profile.mocked,
-    bvn: profile.bvn,
-    nin: profile.nin,
+    bvnLast4: last4(profile.bvn),
+    ninLast4: last4(profile.nin),
+    fullName: profile.fullName,
     updatedAt: profile.updatedAt,
   });
 }

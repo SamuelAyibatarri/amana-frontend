@@ -1,9 +1,13 @@
+import { envString } from "@/lib/db";
+import { signaturesEqual } from "@/lib/webhook";
+
 /**
- * Transaction PIN helpers (demo grade).
+ * Transaction PIN helpers.
  *
- * SHA-256 over `pin:userId`, hex-encoded, via Web Crypto (Workers-safe).
- * Production wants a proper KDF (argon2/bcrypt) + HSM-backed secrets;
- * this keeps PINs out of plaintext without native modules.
+ * PBKDF2-SHA256 (210k iterations) with per-user salt + server pepper
+ * (`PIN_PEPPER`), hex-encoded, via Web Crypto (Workers-safe). Stored hashes
+ * carry a `v1$` prefix so the KDF can rotate later. Legacy unprefixed
+ * SHA-256 hashes are rejected — users re-set their PIN once.
  */
 
 export const PIN_RE = /^\d{4}$/;
@@ -20,12 +24,31 @@ function hex(bytes: ArrayBuffer): string {
     .join("");
 }
 
+function pepper(): string {
+  const p = envString("PIN_PEPPER");
+  if (!p) throw new Error("PIN_PEPPER missing");
+  return p;
+}
+
 export async function hashPin(pin: string, userId: string): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`${pin}:${userId}`),
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(`${pepper()}:${pin}`),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
   );
-  return hex(digest);
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: new TextEncoder().encode(`amana-pin:${userId}`),
+      iterations: 210_000,
+    },
+    key,
+    256,
+  );
+  return `v1$${hex(bits)}`;
 }
 
 export async function checkPin(
@@ -33,8 +56,9 @@ export async function checkPin(
   userId: string,
   pinHash: string,
 ): Promise<boolean> {
+  if (!pinHash.startsWith("v1$")) return false;
   const candidate = await hashPin(pin, userId);
-  return candidate === pinHash;
+  return signaturesEqual(candidate, pinHash);
 }
 
 /** 6-digit reset OTP, crypto-random. */

@@ -29,6 +29,27 @@
       "when": 1790975923866,
       "tag": "0003_milky_gauntlet",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791033167993,
+      "tag": "0004_glossy_johnny_blaze",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791072558117,
+      "tag": "0005_lowly_black_crow",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791289159808,
+      "tag": "0006_graceful_boom_boom",
+      "breakpoints": true
     }
   ]
 }

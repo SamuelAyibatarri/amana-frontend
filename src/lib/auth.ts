@@ -22,12 +22,36 @@ export async function getAuthInstance() {
   const baseURL =
     envString("BETTER_AUTH_URL") || "http://localhost:8787";
   const secret = envString("BETTER_AUTH_SECRET");
-  const trustedOrigins = [
+  const staticOrigins = [
     "http://localhost:8787",
     "http://localhost:3000",
     ...(envString("BETTER_AUTH_URL") ? [envString("BETTER_AUTH_URL")] : []),
     ...(envString("FRONTEND_URL") ? [envString("FRONTEND_URL")] : []),
   ];
+
+  /**
+   * Dynamic origin trust: preview tunnels and deploys change hostnames
+   * (ayiba.dev, workers.dev, localhost). Trust the request's own origin
+   * only when its host is allowlisted — never open-trust.
+   */
+  const trustedOrigins = async (request?: Request): Promise<string[]> => {
+    const origins = [...staticOrigins];
+    if (!request) return origins;
+    try {
+      const origin = request.headers.get("origin");
+      if (!origin) return origins;
+      const host = new URL(origin).hostname;
+      const allowed =
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host.endsWith(".ayiba.dev") ||
+        host.endsWith(".workers.dev");
+      if (allowed && !origins.includes(origin)) origins.push(origin);
+    } catch {
+      // Malformed origin header — fall back to the static list.
+    }
+    return origins;
+  };
 
   if (!secret) {
     console.warn(

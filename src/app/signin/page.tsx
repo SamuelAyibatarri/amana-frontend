@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import SignInForm from "@/components/SignInForm";
+import { getViewer } from "@/lib/gate";
 
 export const metadata: Metadata = {
   title: "Sign in — Amana",
@@ -8,7 +10,12 @@ export const metadata: Metadata = {
     "Sign in to Amana with your WhatsApp number. Get a magic link, tap it, verify identity.",
 };
 
-export default function SignInPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SignInPage() {
+  // Signed-in users never see the form — onward by verification state.
+  const viewer = await getViewer();
+  if (viewer) redirect(viewer.kycStatus === "verified" ? "/dashboard" : "/kyc");
   return (
     <div className="on-light min-h-screen bg-pure-white text-espresso">
       <a
@@ -24,12 +31,9 @@ export default function SignInPage() {
             Amana
           </span>
         </a>
-        <a
-          href="/kyc"
-          className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark"
-        >
-          Mock check
-        </a>
+        <span className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark">
+          Secure sign-in
+        </span>
       </header>
       <main id="signin-main" className="mx-auto max-w-[640px] scroll-mt-24 px-4 pt-8 pb-20 sm:px-8">
         <p className="font-instrument-serif text-[18px] text-taupe italic">

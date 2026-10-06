@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import Dashboard from "@/components/Dashboard";
 import { envString } from "@/lib/db";
+import { getViewer } from "@/lib/gate";
 
 export const metadata: Metadata = {
   title: "Dashboard — Amana",
@@ -9,7 +11,13 @@ export const metadata: Metadata = {
     "Your Amana home base: identity status and transaction PIN setup.",
 };
 
-export default function DashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  // Dashboard is for verified users only — everyone else is routed onward.
+  const viewer = await getViewer();
+  if (!viewer) redirect("/signin");
+  if (viewer.kycStatus !== "verified") redirect("/kyc");
   return (
     <div className="on-light min-h-screen bg-pure-white text-espresso">
       <a
@@ -25,12 +33,9 @@ export default function DashboardPage() {
             Amana
           </span>
         </a>
-        <a
-          href="/kyc"
-          className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark"
-        >
-          Mock check
-        </a>
+        <span className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark">
+          Wallet
+        </span>
       </header>
       <main id="dashboard-main" className="mx-auto max-w-[1200px] scroll-mt-24 px-4 pt-8 pb-20 sm:px-8">
         <h1 className="sr-only">Amana dashboard</h1>

@@ -13,6 +13,9 @@ const last4 = (v: string) => (v.length >= 4 ? v.slice(-4) : v);
  * Applies the mocked 11-digit rule, upserts `kyc_profile` in D1, and fires
  * the HMAC-signed webhook to the Azure backend so it can update the user's
  * transaction clearance status in PostgreSQL.
+ *
+ * Privacy: only the last 4 of BVN/NIN are stored or returned. Mock KYC
+ * needs pass/fail, never the full identifier.
  */
 export async function POST(request: Request) {
   const auth = await getAuthInstance();
@@ -21,12 +24,21 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "Unauthorized." }, { status: 401 });
   }
 
-  let body: { bvn?: unknown; nin?: unknown };
+  let body: { bvn?: unknown; nin?: unknown; fullName?: unknown };
   try {
     body = await request.json();
   } catch {
     return Response.json(
-      { ok: false, error: "Request body must be JSON { bvn, nin }." },
+      { ok: false, error: "Request body must be JSON { bvn, nin, fullName }." },
+      { status: 400 },
+    );
+  }
+
+  const fullName =
+    typeof body.fullName === "string" ? body.fullName.trim().replace(/\s+/g, " ") : "";
+  if (fullName.length < 2 || fullName.length > 80 || !/^[A-Za-z][A-Za-z'’\- ]*$/.test(fullName)) {
+    return Response.json(
+      { ok: false, error: "Full name is required (letters, 2–80 chars)." },
       { status: 400 },
     );
   }
@@ -51,8 +63,9 @@ export async function POST(request: Request) {
     await db
       .update(schema.kycProfile)
       .set({
-        bvn: result.bvn,
-        nin: result.nin,
+        bvn: last4(result.bvn),
+        nin: last4(result.nin),
+        fullName,
         status: result.status,
         mocked: true,
         updatedAt: now,
@@ -62,14 +75,20 @@ export async function POST(request: Request) {
     await db.insert(schema.kycProfile).values({
       id: crypto.randomUUID(),
       userId,
-      bvn: result.bvn,
-      nin: result.nin,
+      bvn: last4(result.bvn),
+      nin: last4(result.nin),
+      fullName,
       status: result.status,
       mocked: true,
       createdAt: now,
       updatedAt: now,
     });
   }
+  // Mirror the real name onto the user row (bot greets by this first).
+  await db
+    .update(schema.user)
+    .set({ name: fullName, updatedAt: now })
+    .where(eq(schema.user.id, userId));
 
   // Notify Azure backend. Best-effort: a webhook failure must not undo D1.
   let webhookOk: boolean | null = null;
