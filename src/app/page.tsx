@@ -88,7 +88,7 @@ export default function Home() {
           aria-labelledby="how-heading"
           className="on-light scroll-mt-8 bg-pure-white text-espresso"
         >
-          <div className="mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
+          <div className="mx-auto max-w-300 px-4 py-20 sm:px-8 sm:py-28">
             <p className="font-instrument-serif text-[18px] text-taupe italic">
               no exchange, no wallet app, no gas math
             </p>
@@ -101,13 +101,13 @@ export default function Home() {
                   key={step.title}
                   className="rounded-[20px] border border-espresso bg-warm-bone p-6 sm:p-8"
                 >
-                  <p className="text-[12px] font-medium tracking-[0.05em] text-taupe uppercase">
+                  <p className="text-[12px] font-medium tracking-wider text-taupe uppercase">
                     {step.step}
                   </p>
                   <p className="mt-4 text-[20px] leading-[1.43] font-semibold tracking-[-0.015em]">
                     {step.title}
                   </p>
-                  <p className="mt-2 text-[14px] leading-[1.5]">{step.body}</p>
+                  <p className="mt-2 text-[14px] leading-normal">{step.body}</p>
                 </li>
               ))}
             </ol>
@@ -120,7 +120,7 @@ export default function Home() {
           className="relative scroll-mt-8 overflow-hidden bg-ember-night"
         >
           <DoodleBand opacity={0.12} />
-          <div className="relative mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
+          <div className="relative mx-auto max-w-300 px-4 py-20 sm:px-8 sm:py-28">
             <div className="grid grid-cols-1 items-center gap-12 xl:grid-cols-3 xl:gap-16">
               <div className="min-w-0">
                 <p className="font-instrument-serif text-[18px] text-taupe italic">
@@ -129,7 +129,7 @@ export default function Home() {
                 <h2 id="cashout-heading" className="display-section mt-4 text-balance">
                   Cash out without leaving <span className="text-ember-glow">chat.</span>
                 </h2>
-                <p className="mt-6 max-w-[56ch] text-[18px] leading-[1.5] text-sand">
+                <p className="mt-6 max-w-[56ch] text-[18px] leading-normal text-sand">
                   Fund with Paystack, hold on Solana, and
                   send to any phone number. The web app is here when you want a
                   bigger screen.
@@ -150,11 +150,11 @@ export default function Home() {
           aria-labelledby="kyc-heading"
           className="on-light scroll-mt-8 bg-pure-white text-espresso"
         >
-          <div className="mx-auto max-w-[1200px] px-4 py-20 text-center sm:px-8 sm:py-28">
+          <div className="mx-auto max-w-300 px-4 py-20 text-center sm:px-8 sm:py-28">
             <h2 id="kyc-heading" className="display-section mx-auto mt-6 max-w-[16ch] text-balance">
               Identity, <span className="text-deep-ember">verified.</span>
             </h2>
-            <p className="mx-auto mt-6 max-w-[60ch] text-[18px] leading-[1.5]">
+            <p className="mx-auto mt-6 max-w-[60ch] text-[18px] leading-normal">
               Enter a BVN and a NIN — anything exactly 11 digits passes, and
               approval unlocks your transfer limits on the spot.
             </p>
@@ -164,13 +164,13 @@ export default function Home() {
                   key={step.title}
                   className="rounded-[20px] border border-espresso bg-warm-bone p-6 sm:p-8"
                 >
-                  <p className="text-[12px] font-medium tracking-[0.05em] text-taupe uppercase">
+                  <p className="text-[12px] font-medium tracking-wider text-taupe uppercase">
                     {step.step}
                   </p>
                   <p className="mt-4 text-[20px] leading-[1.43] font-semibold tracking-[-0.015em]">
                     {step.title}
                   </p>
-                  <p className="mt-2 text-[14px] leading-[1.5]">{step.body}</p>
+                  <p className="mt-2 text-[14px] leading-normal">{step.body}</p>
                 </li>
               ))}
             </ol>
@@ -182,14 +182,14 @@ export default function Home() {
           className="relative scroll-mt-8 overflow-hidden bg-ember-night"
         >
           <DoodleBand opacity={0.12} />
-          <div className="relative mx-auto max-w-[1200px] px-4 py-20 sm:px-8 sm:py-28">
+          <div className="relative mx-auto max-w-300 px-4 py-20 sm:px-8 sm:py-28">
             <p className="font-instrument-serif text-[18px] text-sand italic">
               real architecture, plain language
             </p>
             <h2 id="inside-heading" className="display-section mt-4 max-w-[16ch] text-balance">
               Under the <span className="text-ember-glow">hood.</span>
             </h2>
-            <p className="mt-6 max-w-[60ch] text-[18px] leading-[1.5] text-sand">
+            <p className="mt-6 max-w-[60ch] text-[18px] leading-normal text-sand">
               How the pieces fit together — in plain language. Nothing here
               needs a blockchain degree to follow.
             </p>
@@ -199,13 +199,13 @@ export default function Home() {
                   key={step.title}
                   className="rounded-[20px] border border-espresso p-6 sm:p-8"
                 >
-                  <p className="text-[12px] font-medium tracking-[0.05em] text-taupe uppercase">
+                  <p className="text-[12px] font-medium tracking-wider text-taupe uppercase">
                     {step.step}
                   </p>
                   <p className="mt-4 text-[20px] leading-[1.43] font-semibold tracking-[-0.015em]">
                     {step.title}
                   </p>
-                  <p className="mt-2 max-w-[52ch] text-[14px] leading-[1.5] text-sand">
+                  <p className="mt-2 max-w-[52ch] text-[14px] leading-normal text-sand">
                     {step.body}
                   </p>
                 </li>
@@ -217,11 +217,11 @@ export default function Home() {
 
       <footer className="relative overflow-hidden bg-ember-night">
         <DoodleBand opacity={0.08} />
-        <div className="relative mx-auto flex max-w-[1200px] flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div className="relative mx-auto flex max-w-300 flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p className="text-[14px] font-semibold tracking-[-0.01em]">
             Amana Protocol
           </p>
-          <p className="max-w-[60ch] text-[14px] leading-[1.5] text-sand">
+          <p className="max-w-[60ch] text-[14px] leading-normal text-sand">
             Hackathon build for the Superteam Nigeria track. Verification is
             mocked, funds live on Solana Devnet, payments run through
             Paystack test mode — no real money moves.
