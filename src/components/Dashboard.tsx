@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { authClient } from "@/lib/auth-client";
-import DashIcon, { type DashIconName } from "@/components/DashIcon";
+import { Activity, ChevronLeft, ChevronRight, Home, Settings, ShieldCheck, type LucideIcon } from "lucide-react";
 import PinForm from "@/components/PinForm";
 
 gsap.registerPlugin(useGSAP);
@@ -52,11 +52,11 @@ const fmtDate = (ms: number | null) =>
       })
     : "—";
 
-const TABS: Array<{ id: Tab; label: string; icon: DashIconName }> = [
-  { id: "home", label: "Home", icon: "home" },
-  { id: "activity", label: "Activity", icon: "activity" },
-  { id: "security", label: "Security", icon: "security" },
-  { id: "settings", label: "Settings", icon: "settings" },
+const TABS: Array<{ id: Tab; label: string; icon: LucideIcon }> = [
+  { id: "home", label: "Home", icon: Home },
+  { id: "activity", label: "Activity", icon: Activity },
+  { id: "security", label: "Security", icon: ShieldCheck },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 /**
@@ -454,16 +454,16 @@ export default function Dashboard({ botNumber }: { botNumber: string }) {
           aria-current={tab === t.id ? "page" : undefined}
           aria-label={t.label}
           title={t.label}
-          className={`flex items-center gap-2 rounded-[20px] px-4 py-3 text-[14px] font-medium transition-colors sm:w-full ${
+          className={`flex flex-col items-center gap-1 rounded-[20px] px-4 py-2 text-[14px] font-medium transition-colors sm:w-full sm:flex-row sm:gap-2 sm:px-4 sm:py-3 ${
             tab === t.id
               ? "bg-ember-glow text-espresso"
               : "text-pure-white hover:bg-bark"
           }`}
         >
           <span aria-hidden className="inline-flex">
-            <DashIcon name={t.icon} size={20} />
+            <t.icon size={20} strokeWidth={2} />
           </span>
-          <span className="hidden sm:inline">{t.label}</span>
+          <span className="text-[10px] leading-none font-medium sm:text-[14px] sm:leading-normal">{t.label}</span>
         </button>
       ))}
     </nav>
@@ -957,11 +957,11 @@ export default function Dashboard({ botNumber }: { botNumber: string }) {
                     >
                       {side === "left" ? (
                       <span className="inline-flex items-center gap-1">
-                        <DashIcon name="left" size={16} /> Left
+                        <ChevronLeft size={16} /> Left
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1">
-                        Right <DashIcon name="right" size={16} />
+                        Right <ChevronRight size={16} />
                       </span>
                     )}
                     </button>

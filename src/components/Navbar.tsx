@@ -53,10 +53,7 @@ export default function Navbar() {
       >
         <div className="flex items-center justify-between gap-4">
           <a href="#top" aria-label="Amana home" className="flex items-center gap-2">
-            <Image src="/logo.svg" alt="" width={40} height={25} priority />
-            <span className="text-[16px] font-semibold tracking-[-0.02em] text-pure-white">
-              Amana
-            </span>
+            <Image src="/logo-amana-transparent.svg" alt="amana" width={88} height={22} priority />
           </a>
           <div className="hidden items-center gap-1 lg:flex">
             {LINKS.map(([label, href]) => (

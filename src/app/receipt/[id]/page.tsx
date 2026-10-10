@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
 
@@ -61,24 +62,12 @@ export default async function ReceiptPage({
       >
         <header style={{ background: "#161009", padding: "32px 32px 28px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                background: "#FC5800",
-              }}
+            <Image
+              src="/logo-amana-transparent.svg"
+              alt="amana"
+              width={110}
+              height={28}
             />
-            <span
-              style={{
-                color: "#fff",
-                fontWeight: 700,
-                letterSpacing: 4,
-                fontSize: 20,
-              }}
-            >
-              AMANA
-            </span>
           </div>
           <h1
             style={{ color: "#fff", fontSize: 28, margin: "20px 0 0" }}

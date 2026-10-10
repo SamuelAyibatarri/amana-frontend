@@ -28,10 +28,7 @@ export default async function DashboardPage() {
       </a>
       <header className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-6 sm:px-8">
         <a href="/" aria-label="Amana home" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="" width={40} height={25} />
-          <span className="text-[16px] font-semibold tracking-[-0.02em]">
-            Amana
-          </span>
+          <Image src="/logo-amana-transparent.svg" alt="amana" width={88} height={22} />
         </a>
         <span className="rounded-[40px] bg-ember-wash px-3 py-1 text-[12px] font-medium text-bark">
           Wallet
