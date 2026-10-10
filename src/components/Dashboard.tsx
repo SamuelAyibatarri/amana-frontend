@@ -444,7 +444,7 @@ export default function Dashboard({ botNumber }: { botNumber: string }) {
   const rail = (
     <nav
       aria-label="Dashboard"
-      className="flex flex-row justify-around gap-1 rounded-[28px] border border-espresso bg-ember-night p-2 sm:flex-col sm:justify-start sm:gap-2 sm:rounded-[24px] sm:p-3"
+      className="flex flex-row justify-around gap-1 p-1 sm:flex-col sm:justify-start sm:gap-2 sm:p-1"
     >
       {TABS.map((t) => (
         <button
@@ -454,10 +454,10 @@ export default function Dashboard({ botNumber }: { botNumber: string }) {
           aria-current={tab === t.id ? "page" : undefined}
           aria-label={t.label}
           title={t.label}
-          className={`flex flex-col items-center gap-1 rounded-[20px] px-4 py-2 text-[14px] font-medium transition-colors sm:w-full sm:flex-row sm:gap-2 sm:px-4 sm:py-3 ${
+          className={`flex flex-col items-center gap-1 rounded-full px-4 py-2 text-[14px] font-medium transition-colors sm:w-full sm:flex-row sm:gap-2 sm:px-4 sm:py-3 ${
             tab === t.id
               ? "bg-ember-glow text-espresso"
-              : "text-pure-white hover:bg-bark"
+              : "text-bark hover:bg-ember-wash"
           }`}
         >
           <span aria-hidden className="inline-flex">
@@ -981,7 +981,7 @@ export default function Dashboard({ botNumber }: { botNumber: string }) {
       </div>
 
       {/* Mobile bottom bar */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-espresso bg-ember-night/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-10 bg-gradient-to-t from-pure-white via-pure-white/80 to-transparent px-2 pt-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:hidden">
         {rail}
       </div>
     </div>
